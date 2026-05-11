@@ -28,7 +28,7 @@ class _SplashState extends State<Splash> {
         if (state.isValidSplash == true) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const Login()),
+            MaterialPageRoute(builder: (_) =>  Login()),
           );
         }
       },

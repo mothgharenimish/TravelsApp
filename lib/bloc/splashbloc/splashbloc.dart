@@ -7,7 +7,7 @@ class SplashCubit extends Cubit<SplashState> {
   SplashCubit() : super(SplashState());
 
   void splashStart() {
-    Timer(const Duration(seconds: 10), () {
+    Timer(const Duration(seconds: 3), () {
 
       emit(
         state.copyWith(

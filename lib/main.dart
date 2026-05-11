@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travelsbookingapp/bloc/loginbloc/loginbloc.dart';
+import 'package:travelsbookingapp/bloc/registrationbloc/registrationbloc.dart';
 import 'package:travelsbookingapp/bloc/splashbloc/splashbloc.dart';
 import 'package:travelsbookingapp/screens/splash/splash.dart';
 
@@ -15,11 +17,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-
         BlocProvider<SplashCubit>(
           create: (context) => SplashCubit(),
         ),
-
+        BlocProvider<LoginCubit>(
+          create: (context) => LoginCubit(),
+        ),
+        BlocProvider<Registrationbloc>(
+          create: (context) => Registrationbloc(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
