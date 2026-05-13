@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travelsbookingapp/bloc/loginbloc/loginbloc.dart';
 import 'package:travelsbookingapp/bloc/loginbloc/loginstate.dart';
+import 'package:travelsbookingapp/screens/Home/home.dart';
 import 'package:travelsbookingapp/screens/registration/registration.dart';
 
 class Login extends StatefulWidget {
@@ -35,6 +36,10 @@ class _LoginState extends State<Login> {
               },
             );
             print(response.data);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Home()),
+            );
           } catch (e) {
             print(e);
           }
@@ -45,21 +50,24 @@ class _LoginState extends State<Login> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 50),
+                padding: const EdgeInsets.only(top: 120),
                 child: Image.asset(
-                  "assets/images/org.png",
-                  height: 250,
-                  width: 250,
+                  "assets/images/redbus.png",
+                  height: 110,
+                  width: 110,
                   fit: BoxFit.fill,
                 ),
               ),
 
-              Text(
-                "Login to Continue",
-                style: TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+              Padding(
+                padding: const EdgeInsets.only(top: 17),
+                child: Text(
+                  "Login to Continue",
+                  style: TextStyle(
+                    fontSize: 27,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
               ),
 
@@ -125,7 +133,7 @@ class _LoginState extends State<Login> {
                         borderRadius: BorderRadius.circular(8),
                       ),
 
-                      backgroundColor: const Color(0xFFC57846),
+                      backgroundColor:  Color(0xFFD84E55),
                     ),
 
                     child: const Text(
@@ -168,7 +176,7 @@ class _LoginState extends State<Login> {
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFFC57846),
+                          color: Color(0xFFD84E55),
                         ),
                       ),
                     ),

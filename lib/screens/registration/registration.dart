@@ -63,21 +63,24 @@ class _RegistrationState extends State<Registration> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 50),
+                  padding: const EdgeInsets.only(top: 120),
                   child: Image.asset(
-                    "assets/images/org.png",
-                    height: 250,
-                    width: 250,
+                    "assets/images/redbus.png",
+                    height: 110,
+                    width: 110,
                     fit: BoxFit.fill,
                   ),
                 ),
             
-                Text(
-                  "SignUp to Continue",
-                  style: TextStyle(
-                    fontSize: 27,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                Padding(
+                  padding: const EdgeInsets.only(top: 17),
+                  child: Text(
+                    "SignUp to Continue",
+                    style: TextStyle(
+                      fontSize: 27,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
             
@@ -180,7 +183,7 @@ class _RegistrationState extends State<Registration> {
                           borderRadius: BorderRadius.circular(8),
                         ),
             
-                        backgroundColor: const Color(0xFFC57846),
+                        backgroundColor: const Color(0xFFD84E55),
                       ),
             
                       child: const Text(
@@ -223,7 +226,7 @@ class _RegistrationState extends State<Registration> {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFFC57846),
+                            color: Color(0xFFD84E55),
                           ),
                         ),
                       ),
