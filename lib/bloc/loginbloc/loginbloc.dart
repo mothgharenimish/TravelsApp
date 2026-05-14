@@ -8,7 +8,7 @@ class LoginCubit extends Cubit<LoginState> {
 
   Dio dio = Dio();
 
-  String loginurl = "http://192.168.1.4:9999/user-login";
+  String loginurl = "http://192.168.1.3:9999/user-login";
 
   Future<void> LoginApi() async {
     emit(
