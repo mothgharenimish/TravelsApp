@@ -19,30 +19,47 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    checkUser();
+  }
+
+  void checkUser() async {
+
+    bool isLogin =
+    await context
+        .read<LoginCubit>()
+        .checkLogin();
+
+    if(isLogin) {
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => Home(),
+        ),
+      );
+
+    } else {
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => Login(),
+        ),
+      );
+    }
+  }
+  @override
   Widget build(BuildContext context) {
     return BlocListener<LoginCubit, LoginState>(
       listener: (BuildContext context, LoginState state) async {
         if (state.isValidLogin == true) {
-          Dio dio = Dio();
-          String url = context.read<LoginCubit>().loginurl;
-
-          try {
-            Response response = await dio.post(
-              url,
-              data: {
-                "emailid": widget.emailController.text,
-                "password": widget.passwordController.text,
-                "mobilenumber": widget.mobilenoController.text,
-              },
-            );
-            print(response.data);
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Home()),
-            );
-          } catch (e) {
-            print(e);
-          }
+          Navigator.push(context, MaterialPageRoute(builder: (_) => Home()));
+        }
+        if (state.errormessage.isNotEmpty) {
+          print(state.errormessage);
         }
       },
       child: Scaffold(
@@ -120,7 +137,13 @@ class _LoginState extends State<Login> {
                       if (widget.emailController.text.isNotEmpty &&
                           widget.passwordController.text.isNotEmpty &&
                           widget.mobilenoController.text.isNotEmpty) {
-                        context.read<LoginCubit>().LoginApi();
+                        context.read<LoginCubit>().LoginApi(
+                          email: widget.emailController.text,
+
+                          password: widget.passwordController.text,
+
+                          mobile: widget.mobilenoController.text,
+                        );
                       } else {
                         print("All fields are required");
                       }
@@ -133,7 +156,7 @@ class _LoginState extends State<Login> {
                         borderRadius: BorderRadius.circular(8),
                       ),
 
-                      backgroundColor:  Color(0xFFD84E55),
+                      backgroundColor: Color(0xFFD84E55),
                     ),
 
                     child: const Text(
