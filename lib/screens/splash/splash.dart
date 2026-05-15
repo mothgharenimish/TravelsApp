@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travelsbookingapp/bloc/loginbloc/loginbloc.dart';
 import 'package:travelsbookingapp/bloc/splashbloc/splashbloc.dart';
 import 'package:travelsbookingapp/bloc/splashbloc/splashstate.dart';
+import 'package:travelsbookingapp/screens/Home/home.dart';
 import 'package:travelsbookingapp/screens/login/login.dart';
 
 class Splash extends StatefulWidget {
@@ -18,7 +20,35 @@ class _SplashState extends State<Splash> {
     super.initState();
 
     context.read<SplashCubit>().splashStart();
+    checkUser();
 
+  }
+
+  void checkUser() async {
+
+    bool isLogin =
+    await context
+        .read<LoginCubit>()
+        .checkLogin();
+
+    if(isLogin) {
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => Home(),
+        ),
+      );
+
+    } else {
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => Login(),
+        ),
+      );
+    }
   }
 
   @override

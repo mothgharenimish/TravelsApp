@@ -16,6 +16,7 @@ class TravelsData {
   String boardingtime;
   String droppingtime;
   String date;
+  double? timeDifference;
 
   TravelsData({
     required this.id,
@@ -29,6 +30,7 @@ class TravelsData {
     required this.boardingtime,
     required this.droppingtime,
     required this.date,
+    this.timeDifference
   });
 
   factory TravelsData.fromJson(Map<String, dynamic> json) => TravelsData(

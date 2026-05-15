@@ -22,35 +22,9 @@ class _LoginState extends State<Login> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    checkUser();
   }
 
-  void checkUser() async {
 
-    bool isLogin =
-    await context
-        .read<LoginCubit>()
-        .checkLogin();
-
-    if(isLogin) {
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => Home(),
-        ),
-      );
-
-    } else {
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => Login(),
-        ),
-      );
-    }
-  }
   @override
   Widget build(BuildContext context) {
     return BlocListener<LoginCubit, LoginState>(
