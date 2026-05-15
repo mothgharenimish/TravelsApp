@@ -40,6 +40,27 @@ class _HomeState extends State<Home> {
         print(data.droppingcity);
         print(data.boardingcity);
       }
+
+      DateTime parseDate(String date) {
+        List<String> parts = date.split('-');
+
+        return DateTime(
+          int.parse(parts[0]),
+          int.parse(parts[1]),
+          int.parse(parts[2]),
+        );
+      }
+
+      List<TravelsData> sortedList = List.from(state.travelsdata);
+
+      sortedList.sort((a,b) {
+        DateTime dateA = parseDate(a.date);
+        DateTime dateB = parseDate(b.date);
+
+        return dateB.compareTo(dateA);
+      });
+
+       print(sortedList);
     },
       child: Scaffold(
         backgroundColor: Colors.grey.shade100,

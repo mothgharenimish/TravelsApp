@@ -7,13 +7,16 @@ class TravelsCubit extends Cubit<TravelsapiState> {
   TravelsCubit() : super(TravelsapiState());
 
   Dio dio = Dio();
+  // DateTime today = DateTime.now();
+  // DateTime futureDate = DateTime.now().add(Duration(days: 20));
+  // late String todaydate  = "${today.day}-${today.month}-${today.year}";
+  // late String futuredate = "${futureDate.day}-${futureDate.month}-${futureDate.year}";
 
-  String travelsapiurl = "http://192.168.1.5:9999/travels-read";
+  String travelsapiurl = "http://192.168.1.2:9999/travels-read";
 
   Future<void> TravelGetAPI() async {
     try {
       Response response = await dio.get(travelsapiurl);
-
       List<TravelsData> parsedData = List<TravelsData>.from(
         response.data.map((x) => TravelsData.fromJson(x)),
       );
