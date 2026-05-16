@@ -12,7 +12,7 @@ class TravelsCubit extends Cubit<TravelsapiState> {
   // late String todaydate  = "${today.day}-${today.month}-${today.year}";
   // late String futuredate = "${futureDate.day}-${futureDate.month}-${futureDate.year}";
 
-  String travelsapiurl = "http://192.168.1.2:9999/travels-read";
+  String travelsapiurl = "http://192.168.1.9:9999/travels-read";
 
   Future<void> TravelGetAPI() async {
     try {

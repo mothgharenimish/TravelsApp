@@ -24,7 +24,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     context.read<TravelsCubit>().TravelGetAPI();
-    print(travelsdata);
+    // print(travelsdata);
     print("I am Nimish Mothghare");
   }
 
@@ -33,13 +33,13 @@ class _HomeState extends State<Home> {
     return BlocListener<TravelsCubit,TravelsapiState>(
     listener: (BuildContext context, TravelsapiState state)  {
       print(state.travelsdata);
-      for( var data in state.travelsdata) {
-        print(data.travelscompanyname);
-        print(data.id);
-        print(data.travelsid);
-        print(data.droppingcity);
-        print(data.boardingcity);
-      }
+      // for( var data in state.travelsdata) {
+      //   print(data.travelscompanyname);
+      //   print(data.id);
+      //   print(data.travelsid);
+      //   print(data.droppingcity);
+      //   print(data.boardingcity);
+      // }
 
       DateTime parseDate(String date) {
         List<String> parts = date.split('-');
@@ -51,16 +51,23 @@ class _HomeState extends State<Home> {
         );
       }
 
-      List<TravelsData> sortedList = List.from(state.travelsdata);
+      List<TravelsData> sortedTravels = List.from(state.travelsdata);
 
-      sortedList.sort((a,b) {
+      sortedTravels.sort((a,b) {
         DateTime dateA = parseDate(a.date);
         DateTime dateB = parseDate(b.date);
 
         return dateB.compareTo(dateA);
       });
 
-       print(sortedList);
+       print(sortedTravels);
+
+       for(var sortedlist in sortedTravels) {
+         print(sortedlist.date);
+         print(sortedlist.travelscompanyname);
+       }
+
+
     },
       child: Scaffold(
         backgroundColor: Colors.grey.shade100,
