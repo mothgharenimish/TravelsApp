@@ -38,149 +38,160 @@ class _LoginState extends State<Login> {
       },
       child: Scaffold(
         body: Center(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 120),
-                child: Image.asset(
-                  "assets/images/redbus.png",
-                  height: 110,
-                  width: 110,
-                  fit: BoxFit.fill,
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(top: 17),
-                child: Text(
-                  "Login to Continue",
-                  style: TextStyle(
-                    fontSize: 27,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 40),
+                  child: Image.asset(
+                    "assets/images/redbus.png",
+                    height: 80,
+                    width: 80,
+                    fit: BoxFit.fill,
                   ),
                 ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(top: 25, left: 20, right: 20),
-                child: TextField(
-                  controller: widget.emailController,
-                  onChanged: (value) {},
-                  decoration: const InputDecoration(
-                    labelText: "Email",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
-                child: TextField(
-                  controller: widget.mobilenoController,
-                  onChanged: (value) {},
-                  decoration: const InputDecoration(
-                    labelText: "Mobile Number",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
-                child: TextField(
-                  controller: widget.passwordController,
-                  obscureText: true,
-                  onChanged: (value) {},
-                  decoration: const InputDecoration(
-                    labelText: "Password",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: SizedBox(
-                  height: 50,
-                  width: double.infinity,
-
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (widget.emailController.text.isNotEmpty &&
-                          widget.passwordController.text.isNotEmpty &&
-                          widget.mobilenoController.text.isNotEmpty) {
-                        context.read<LoginCubit>().LoginApi(
-                          email: widget.emailController.text,
-
-                          password: widget.passwordController.text,
-
-                          mobile: widget.mobilenoController.text,
-                        );
-                      } else {
-                        print("All fields are required");
-                      }
-                    },
-
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-
-                      backgroundColor: Color(0xFFD84E55),
+            
+                Padding(
+                  padding: const EdgeInsets.only(top: 17),
+                  child: Text(
+                    "Login to Continue",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
-
-                    child: const Text(
-                      "Login",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                  ),
+                ),
+            
+                Padding(
+                  padding: const EdgeInsets.only(top: 25, left: 20, right: 20),
+                  child: SizedBox(
+                    height: 48,
+                    child: TextField(
+                      controller: widget.emailController,
+                      onChanged: (value) {},
+                      decoration: const InputDecoration(
+                        labelText: "Email",
+                        border: OutlineInputBorder(),
                       ),
                     ),
                   ),
                 ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Don't have an account?",
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+            
+                Padding(
+                  padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
+                  child: SizedBox(
+                    height: 48,
+                    child: TextField(
+                      controller: widget.mobilenoController,
+                      onChanged: (value) {},
+                      decoration: const InputDecoration(
+                        labelText: "Mobile Number",
+                        border: OutlineInputBorder(),
                       ),
                     ),
-
-                    SizedBox(width: 2),
-
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => Registration()),
-                        );
+                  ),
+                ),
+            
+                Padding(
+                  padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
+                  child: SizedBox(
+                    height: 48,
+                    child: TextField(
+                      controller: widget.passwordController,
+                      obscureText: true,
+                      onChanged: (value) {},
+                      decoration: const InputDecoration(
+                        labelText: "Password",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ),
+            
+                SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: SizedBox(
+                    height: 48,
+                    width: double.infinity,
+            
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (widget.emailController.text.isNotEmpty &&
+                            widget.passwordController.text.isNotEmpty &&
+                            widget.mobilenoController.text.isNotEmpty) {
+                          context.read<LoginCubit>().LoginApi(
+                            email: widget.emailController.text,
+            
+                            password: widget.passwordController.text,
+            
+                            mobile: widget.mobilenoController.text,
+                          );
+                        } else {
+                          print("All fields are required");
+                        }
                       },
-                      child: Text(
-                        "SignUp",
+            
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+            
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+            
+                        backgroundColor: Color(0xFFD84E55),
+                      ),
+            
+                      child: const Text(
+                        "Login",
                         style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFFD84E55),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+            
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Don't have an account?",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+            
+                      SizedBox(width: 2),
+            
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => Registration()),
+                          );
+                        },
+                        child: Text(
+                          "SignUp",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFFD84E55),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

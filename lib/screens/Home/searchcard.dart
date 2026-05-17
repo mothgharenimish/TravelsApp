@@ -34,7 +34,7 @@ class Searchcard extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(
-            height: 50,
+            height: 35,
             child: Padding(
               padding: EdgeInsets.only(left: 20, right: 20),
               child: TextFormField(
@@ -60,7 +60,7 @@ class Searchcard extends StatelessWidget {
 
           SizedBox(height: 5),
           SizedBox(
-            height: 50,
+            height: 35,
             child: Padding(
               padding: EdgeInsets.only(left: 20, right: 20),
               child: TextFormField(
@@ -86,7 +86,7 @@ class Searchcard extends StatelessWidget {
           SizedBox(height: 5),
 
           SizedBox(
-            height: 50,
+            height: 35,
             child: Padding(
               padding: EdgeInsets.only(left: 20, right: 20),
               child: TextFormField(
@@ -114,7 +114,7 @@ class Searchcard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
 
             child: SizedBox(
-              height: 50,
+              height: 45,
               width: double.infinity,
 
               child: ElevatedButton(
@@ -136,7 +136,7 @@ class Searchcard extends StatelessWidget {
                   "Search Bus",
 
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),

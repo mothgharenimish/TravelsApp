@@ -1,9 +1,9 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travelsbookingapp/bloc/travelsbloc/travelsapibloc.dart';
 import 'package:travelsbookingapp/bloc/travelsbloc/travelsapistate.dart';
 import 'package:travelsbookingapp/model/travelsmodel.dart';
+import 'package:travelsbookingapp/screens/Home/travelscard.dart';
 import 'searchcard.dart';
 
 class Home extends StatefulWidget {
@@ -13,146 +13,147 @@ class Home extends StatefulWidget {
   final TextEditingController toController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
 
-
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  List<TravelsData> travelsdata = [];
+  List<TravelsData> sortedTravels = [];
+
   @override
   void initState() {
     super.initState();
+
     context.read<TravelsCubit>().TravelGetAPI();
-    // print(travelsdata);
-    print("I am Nimish Mothghare");
+  }
+
+  DateTime parseDate(String date) {
+    List<String> parts = date.split('-');
+
+    return DateTime(
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+      int.parse(parts[2]),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<TravelsCubit,TravelsapiState>(
-    listener: (BuildContext context, TravelsapiState state)  {
-      print(state.travelsdata);
-      // for( var data in state.travelsdata) {
-      //   print(data.travelscompanyname);
-      //   print(data.id);
-      //   print(data.travelsid);
-      //   print(data.droppingcity);
-      //   print(data.boardingcity);
-      // }
+    return BlocListener<TravelsCubit, TravelsapiState>(
+      listener: (context, state) {
+        sortedTravels = List.from(state.travelsdata);
 
-      DateTime parseDate(String date) {
-        List<String> parts = date.split('-');
+        sortedTravels.sort((a, b) {
+          DateTime dateA = parseDate(a.date);
+          DateTime dateB = parseDate(b.date);
 
-        return DateTime(
-          int.parse(parts[0]),
-          int.parse(parts[1]),
-          int.parse(parts[2]),
-        );
-      }
+          return dateB.compareTo(dateA);
+        });
 
-      List<TravelsData> sortedTravels = List.from(state.travelsdata);
+        setState(() {});
+      },
 
-      sortedTravels.sort((a,b) {
-        DateTime dateA = parseDate(a.date);
-        DateTime dateB = parseDate(b.date);
-
-        return dateB.compareTo(dateA);
-      });
-
-       print(sortedTravels);
-
-       for(var sortedlist in sortedTravels) {
-         print(sortedlist.date);
-         print(sortedlist.travelscompanyname);
-       }
-
-
-    },
       child: Scaffold(
         backgroundColor: Colors.grey.shade100,
-      
-        body: Column(
+
+        body: Stack(
           children: [
+            /// RED BACKGROUND
             Container(
               height: 260,
               width: double.infinity,
-      
+
               decoration: const BoxDecoration(
                 color: Color(0xFFD84E55),
-      
+
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(45),
                   bottomRight: Radius.circular(45),
                 ),
               ),
-      
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                  ),
-      
-                  child: Transform.translate(
-                    offset: const Offset(0,-49),
-      
-                    child: Row(
+            ),
+
+            /// MAIN CONTENT
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+
+                child: Column(
+                  children: [
+                    /// TOP SPACE
+                    const SizedBox(height: 10),
+
+                    /// HEADER
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                       crossAxisAlignment: CrossAxisAlignment.center,
-      
+
                       children: [
+                        /// TEXTS
                         Column(
-                          mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
-      
+
                           children: const [
                             Text(
                               "Hi, Nimish",
+
                               style: TextStyle(
-                                fontSize: 23,
+                                fontSize: 24,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
                               ),
                             ),
-      
                             Text(
                               "Bus Booking Tickets",
+
                               style: TextStyle(
                                 fontSize: 15,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 color: Colors.white,
                               ),
                             ),
                           ],
                         ),
-      
                         Image.asset(
                           "assets/images/images.png",
+
                           height: 90,
                           width: 90,
+
                           fit: BoxFit.contain,
                         ),
                       ],
                     ),
-                  ),
-                ),
-              ),
-            ),
-      
-            Transform.translate(
-              offset: const Offset(0, -109),
-      
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-      
-                child: Searchcard(
-                  fromcontroller: widget.fromController,
-                  tocontroller: widget.toController,
-                  datecontroller: widget.dateController,
-      
-                  searchbusTap: () {
-                    print("Search Bus Clicked");
-                  },
+
+                    const SizedBox(height: 20),
+
+                    Searchcard(
+                      fromcontroller: widget.fromController,
+
+                      tocontroller: widget.toController,
+
+                      datecontroller: widget.dateController,
+
+                      searchbusTap: () {
+                        print("Search Bus Clicked");
+                      },
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Expanded(
+                      child: ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+
+                        itemCount: sortedTravels.length,
+
+                        itemBuilder: (context, index) {
+                          return Travelscard(travelsdata: sortedTravels[index]);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
