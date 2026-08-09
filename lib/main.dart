@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travelsbookingapp/bloc/boardingpointbloc/boardingpointbloc.dart';
+import 'package:travelsbookingapp/bloc/bookinghistorybloc/bookinghistorybloc.dart';
+import 'package:travelsbookingapp/bloc/dropingpointbloc/dropingpointbloc.dart';
 import 'package:travelsbookingapp/bloc/loginbloc/loginbloc.dart';
 import 'package:travelsbookingapp/bloc/registrationbloc/registrationbloc.dart';
 import 'package:travelsbookingapp/bloc/splashbloc/splashbloc.dart';
@@ -20,14 +23,29 @@ class MyApp extends StatelessWidget {
         BlocProvider<SplashCubit>(
           create: (context) => SplashCubit(),
         ),
+
         BlocProvider<LoginCubit>(
           create: (context) => LoginCubit(),
         ),
+
         BlocProvider<Registrationbloc>(
           create: (context) => Registrationbloc(),
         ),
+
         BlocProvider<TravelsCubit>(
           create: (context) => TravelsCubit(),
+        ),
+
+        BlocProvider<BoardingCubit>(
+          create: (context) => BoardingCubit(),
+        ),
+
+        BlocProvider<DroppingCubit>(
+          create: (context) => DroppingCubit(),
+        ),
+
+        BlocProvider<Bookinghistorybloc>(
+          create: (context) => Bookinghistorybloc(),
         ),
       ],
       child: MaterialApp(

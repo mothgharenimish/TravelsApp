@@ -1,9 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travelsbookingapp/bloc/loginbloc/loginbloc.dart';
 import 'package:travelsbookingapp/bloc/loginbloc/loginstate.dart';
+import 'package:travelsbookingapp/model/currentuser.dart';
 import 'package:travelsbookingapp/screens/Home/home.dart';
+import 'package:travelsbookingapp/screens/bottomnavigation/mainNavigation.dart';
 import 'package:travelsbookingapp/screens/registration/registration.dart';
 
 class Login extends StatefulWidget {
@@ -18,180 +19,269 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  static const Color bgColor = Color(0xFF0E1116);
+  static const Color cardColor = Color(0xFF1C2028);
+  static const Color borderColor = Color(0xFF262B35);
+  static const Color amber = Color(0xFFE8B84B);
+  static const Color muted = Color(0xFF9AA0AA);
+
+  bool obscurePassword = true;
+  bool isSubmitting = false;
+  String? errorText;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
+  InputDecoration _decoration(String label, IconData icon, {Widget? suffix}) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: muted, fontSize: 14),
+      prefixIcon: Icon(icon, color: amber, size: 20),
+      suffixIcon: suffix,
+      filled: true,
+      fillColor: cardColor,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: borderColor, width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: amber, width: 1.4),
+      ),
+      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+    );
+  }
+
+  void _submit(BuildContext context) {
+    FocusScope.of(context).unfocus();
+
+    if (widget.emailController.text.isEmpty ||
+        widget.passwordController.text.isEmpty ||
+        widget.mobilenoController.text.isEmpty) {
+      setState(() => errorText = "All fields are required");
+      return;
+    }
+
+    setState(() {
+      errorText = null;
+      isSubmitting = true;
+    });
+
+    context.read<LoginCubit>().LoginApi(
+      email: widget.emailController.text,
+      password: widget.passwordController.text,
+      mobile: widget.mobilenoController.text,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<LoginCubit, LoginState>(
       listener: (BuildContext context, LoginState state) async {
-        if (state.isValidLogin == true) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => Home()));
+        setState(() => isSubmitting = false);
+
+        if (state.isValidLogin == true && state.logindata != null) {
+          CurrentUser.setUser(
+            userid: state.logindata!.userid,
+            name: state.logindata!.name,
+            emailid: state.logindata!.emailid,
+            mobilenumber: state.logindata!.mobilenumber,
+          );
+          Navigator.push(context, MaterialPageRoute(builder: (_) => MainNavigation()));
         }
         if (state.errormessage.isNotEmpty) {
-          print(state.errormessage);
+          setState(() => errorText = state.errormessage);
         }
       },
       child: Scaffold(
-        body: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 40),
-                  child: Image.asset(
-                    "assets/images/redbus.png",
-                    height: 80,
-                    width: 80,
-                    fit: BoxFit.fill,
-                  ),
-                ),
-            
-                Padding(
-                  padding: const EdgeInsets.only(top: 17),
-                  child: Text(
-                    "Login to Continue",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-            
-                Padding(
-                  padding: const EdgeInsets.only(top: 25, left: 20, right: 20),
-                  child: SizedBox(
-                    height: 48,
-                    child: TextField(
-                      controller: widget.emailController,
-                      onChanged: (value) {},
-                      decoration: const InputDecoration(
-                        labelText: "Email",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ),
-            
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
-                  child: SizedBox(
-                    height: 48,
-                    child: TextField(
-                      controller: widget.mobilenoController,
-                      onChanged: (value) {},
-                      decoration: const InputDecoration(
-                        labelText: "Mobile Number",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ),
-            
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
-                  child: SizedBox(
-                    height: 48,
-                    child: TextField(
-                      controller: widget.passwordController,
-                      obscureText: true,
-                      onChanged: (value) {},
-                      decoration: const InputDecoration(
-                        labelText: "Password",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ),
-            
-                SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: SizedBox(
-                    height: 48,
-                    width: double.infinity,
-            
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (widget.emailController.text.isNotEmpty &&
-                            widget.passwordController.text.isNotEmpty &&
-                            widget.mobilenoController.text.isNotEmpty) {
-                          context.read<LoginCubit>().LoginApi(
-                            email: widget.emailController.text,
-            
-                            password: widget.passwordController.text,
-            
-                            mobile: widget.mobilenoController.text,
-                          );
-                        } else {
-                          print("All fields are required");
-                        }
-                      },
-            
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-            
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-            
-                        backgroundColor: Color(0xFFD84E55),
-                      ),
-            
-                      child: const Text(
-                        "Login",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Don't have an account?",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
-            
-                      SizedBox(width: 2),
-            
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (_) => Registration()),
-                          );
-                        },
-                        child: Text(
-                          "SignUp",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFFD84E55),
+        backgroundColor: bgColor,
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 36),
+
+                        /// LOGO BADGE
+                        Center(
+                          child: Container(
+                            height: 68,
+                            width: 68,
+                            decoration: BoxDecoration(
+                              color: cardColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: borderColor, width: 1),
+                            ),
+                            child: const Icon(
+                              Icons.directions_bus_filled_rounded,
+                              color: amber,
+                              size: 32,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+
+                        const SizedBox(height: 22),
+
+                        const Text(
+                          "Welcome back",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          "Log in to book your next journey",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 13, color: muted),
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        TextField(
+                          controller: widget.emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          decoration: _decoration("Email", Icons.mail_outline_rounded),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        TextField(
+                          controller: widget.mobilenoController,
+                          keyboardType: TextInputType.phone,
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          decoration: _decoration("Mobile number", Icons.phone_outlined),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        TextField(
+                          controller: widget.passwordController,
+                          obscureText: obscurePassword,
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          decoration: _decoration(
+                            "Password",
+                            Icons.lock_outline_rounded,
+                            suffix: IconButton(
+                              onPressed: () =>
+                                  setState(() => obscurePassword = !obscurePassword),
+                              icon: Icon(
+                                obscurePassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: muted,
+                                size: 19,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        if (errorText != null) ...[
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              const Icon(Icons.error_outline_rounded,
+                                  color: Color(0xFFE8746B), size: 15),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  errorText!,
+                                  style: const TextStyle(
+                                    color: Color(0xFFE8746B),
+                                    fontSize: 12.5,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+
+                        const SizedBox(height: 26),
+
+                        SizedBox(
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: isSubmitting ? null : () => _submit(context),
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0,
+                              backgroundColor: amber,
+                              disabledBackgroundColor: amber.withOpacity(0.5),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: isSubmitting
+                                ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.4,
+                                color: Color(0xFF2A1E00),
+                              ),
+                            )
+                                : const Text(
+                              "Log in",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF2A1E00),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const Spacer(),
+
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20, top: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "Don't have an account?",
+                                style: TextStyle(fontSize: 13.5, color: muted),
+                              ),
+                              const SizedBox(width: 5),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => Registration()),
+                                  );
+                                },
+                                child: const Text(
+                                  "Sign up",
+                                  style: TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: amber,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),

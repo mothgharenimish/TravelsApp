@@ -3,253 +3,340 @@ import 'package:travelsbookingapp/model/travelsmodel.dart';
 
 class Travelscard extends StatefulWidget {
   final TravelsData travelsdata;
+  final VoidCallback onTap;
 
-  const Travelscard({super.key, required this.travelsdata});
+  const Travelscard({super.key, required this.travelsdata, required this.onTap});
 
   @override
   State<Travelscard> createState() => _TravelscardState();
 }
 
 class _TravelscardState extends State<Travelscard> {
+  static const Color cardColor = Color(0xFF1C2028);
+  static const Color borderColor = Color(0xFF262B35);
+  static const Color amber = Color(0xFFE8B84B);
+  static const Color muted = Color(0xFF9AA0AA);
+  static const Color originDot = Color(0xFF5B8DEF);
+  static const Color ratingGreen = Color(0xFF5FD08A);
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 6),
-
-      padding: const EdgeInsets.all(16),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Material(
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(18),
-
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.black.withOpacity(0.06),
-        //     blurRadius: 12,
-        //     spreadRadius: 1,
-        //     offset: const Offset(0, 4),
-        //   ),
-        // ],
-      ),
-
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${widget.travelsdata.boardingtime} → ${widget.travelsdata.droppingtime}",
-
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-
-                    Text(
-                      "${widget.travelsdata.timeDifference} • 14 Seats Left",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    "₹${widget.travelsdata.price}",
-
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  Text(
-                    "Onwards",
-
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-           SizedBox(height: 14),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${widget.travelsdata.travelscompanyname} 🚍",
-
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                      ),
-                    ),
-
-                    Text(
-                      "${widget.travelsdata.bustype} • 2+1",
-
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-
-                child: Row(
-                  children: [
-                    const Icon(Icons.star, size: 16, color: Colors.white),
-
-                    const SizedBox(width: 4),
-
-                    Text(
-                      "${widget.travelsdata.rating}",
-
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 11),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 7,
-                ),
-
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade100,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-
-                child: Text(
-                  "🚌 New Bus",
-
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.orange.shade900,
-                  ),
-                ),
-              ),
-
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 7,
-                ),
-
-                decoration: BoxDecoration(
-                  color: Colors.green.shade100,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-
-                child: Text(
-                  "⏰ 91% On Time",
-
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.green.shade900,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 6),
-
-          Container(
-            width: double.infinity,
-
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: widget.onTap,
+          splashColor: amber.withOpacity(0.06),
+          highlightColor: amber.withOpacity(0.03),
+          child: Container(
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFD84E55), Color(0xFFEF5350)],
-              ),
-
-              borderRadius: BorderRadius.circular(14),
+              color: cardColor,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: borderColor, width: 0.6),
             ),
-
-            child: const Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.local_offer, color: Colors.white, size: 20),
-
-                SizedBox(width: 10),
-
-                Expanded(
-                  child: Text(
-                    "Get ₹150 OFF on your return trip",
-
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                /// DATE
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today_outlined, size: 12, color: muted),
+                    const SizedBox(width: 6),
+                    Text(
+                      _formatDate(widget.travelsdata.date),
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: muted,
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                /// TIMELINE ROW: TIME + DURATION + PRICE
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 3, right: 12),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 7,
+                            height: 7,
+                            decoration: const BoxDecoration(
+                              color: originDot,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 46,
+                            child: _DashedLine(color: Color(0xFF3A3F4A)),
+                          ),
+                          Container(
+                            width: 7,
+                            height: 7,
+                            decoration: BoxDecoration(
+                              color: amber,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "${widget.travelsdata.boardingtime}",
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 1),
+                                    Text(
+                                      "${widget.travelsdata.boardingcity}",
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 11.5, color: muted),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  widget.travelsdata.timeDifference != null
+                                      ? "${widget.travelsdata.timeDifference}h"
+                                      : "",
+                                  style: const TextStyle(fontSize: 11, color: muted),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "${widget.travelsdata.droppingtime}",
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 1),
+                                    Text(
+                                      "${widget.travelsdata.droppingcity}",
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 11.5, color: muted),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  "₹${widget.travelsdata.price}",
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: amber,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+                const Divider(height: 1, color: borderColor),
+                const SizedBox(height: 12),
+
+                /// COMPANY + SEATS + RATING
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${widget.travelsdata.travelscompanyname}",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            "${widget.travelsdata.bustype} • 2+1 • 14 seats left",
+                            style: const TextStyle(fontSize: 11.5, color: muted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: borderColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.star_rounded, size: 13, color: ratingGreen),
+                          const SizedBox(width: 3),
+                          Text(
+                            "${widget.travelsdata.rating}",
+                            style: const TextStyle(
+                              color: ratingGreen,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                /// TAGS
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _tag("🚌  New Bus", const Color(0xFF2A2210), const Color(0xFFE8B84B)),
+                    _tag("⏰  91% On Time", const Color(0xFF12271A), ratingGreen),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                /// OFFER BANNER
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF262110),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(color: const Color(0xFF3A3010), width: 0.6),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.local_offer_rounded, color: amber, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "Get ₹150 OFF on your return trip",
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: amber.withOpacity(0.95),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
+    );
+  }
+
+  String _formatDate(String date) {
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    try {
+      final parts = date.split('-');
+      final year = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final day = int.parse(parts[2]);
+      return "$day ${months[month - 1]} $year";
+    } catch (_) {
+      return date;
+    }
+  }
+
+  Widget _tag(String label, Color bg, Color fg) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: fg,
+        ),
+      ),
+    );
+  }
+}
+
+/// Small vertical dashed connector used in the route timeline.
+class _DashedLine extends StatelessWidget {
+  final Color color;
+  const _DashedLine({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final dashHeight = 3.0;
+        final dashSpace = 3.0;
+        final dashCount = (constraints.maxHeight / (dashHeight + dashSpace)).floor();
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(dashCount, (_) {
+            return SizedBox(
+              width: 1,
+              height: dashHeight,
+              child: DecoratedBox(decoration: BoxDecoration(color: color)),
+            );
+          }),
+        );
+      },
     );
   }
 }

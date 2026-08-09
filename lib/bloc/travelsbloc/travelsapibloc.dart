@@ -7,12 +7,8 @@ class TravelsCubit extends Cubit<TravelsapiState> {
   TravelsCubit() : super(TravelsapiState());
 
   Dio dio = Dio();
-  // DateTime today = DateTime.now();
-  // DateTime futureDate = DateTime.now().add(Duration(days: 20));
-  // late String todaydate  = "${today.day}-${today.month}-${today.year}";
-  // late String futuredate = "${futureDate.day}-${futureDate.month}-${futureDate.year}";
 
-  String travelsapiurl = "http://192.168.1.8:9999/travels-read";
+  String travelsapiurl = "http://192.168.1.10:9999/travels-read";
 
   Future<void> TravelGetAPI() async {
     try {
@@ -22,8 +18,11 @@ class TravelsCubit extends Cubit<TravelsapiState> {
       );
 
       for (var travel in parsedData) {
-        travel.timeDifference = calculateTimeDifference(travel.boardingtime, travel.droppingtime);
-        print( travel.timeDifference);
+        travel.timeDifference =
+            calculateTimeDifference(travel.boardingtime, travel.droppingtime);
+        print(
+          "The time difference is ${formatDuration(travel.timeDifference!)}",
+        );
       }
 
       emit(state.copyWith(isValidTravelsApi: true, travelsdata: parsedData));
@@ -36,27 +35,62 @@ class TravelsCubit extends Cubit<TravelsapiState> {
     }
   }
 
+  /// Parses a time string like "9:30 AM", "09:30 PM", or 24-hour "21:30"
+  /// into a fixed reference DateTime so only the time-of-day is meaningful.
+  DateTime _parseTime(String time) {
+    final trimmed = time.trim().toUpperCase();
+    final isPM = trimmed.contains("PM");
+    final isAM = trimmed.contains("AM");
+
+    final cleaned = trimmed.replaceAll("AM", "").replaceAll("PM", "").trim();
+    final parts = cleaned.split(":");
+
+    int hour = int.parse(parts[0].trim());
+    int minute = parts.length > 1 ? int.parse(parts[1].trim()) : 0;
+
+    if (isPM && hour != 12) {
+      hour += 12;
+    }
+    if (isAM && hour == 12) {
+      hour = 0;
+    }
+
+    return DateTime(2000, 1, 1, hour, minute);
+  }
+
+  /// Returns the trip duration in hours (as a decimal, e.g. 8.5 = 8h 30m).
+  /// Correctly wraps past midnight for overnight trips.
   double calculateTimeDifference(String boardingtime, String droppingtime) {
     try {
-      String boardtime = boardingtime
-          .replaceAll(" AM", "")
-          .replaceAll(" PM", "");
-      String droptime = droppingtime
-          .replaceAll(" AM", "")
-          .replaceAll(" PM", "");
+      DateTime board = _parseTime(boardingtime);
+      DateTime drop = _parseTime(droppingtime);
 
-      String formattedboardTime = boardtime.replaceAll(":", ".");
-      String formatteddropTime = droptime.replaceAll(":", ".");
+      Duration difference = drop.difference(board);
 
-      double boardingdouble = double.parse(formattedboardTime);
-      double dropingdouble = double.parse(formatteddropTime);
+      // Overnight trip: dropping time is earlier in the clock than
+      // boarding time, so it actually falls on the next day.
+      if (!difference.isNegative && difference.inMinutes == 0) {
+        // Same time given for boarding and dropping — treat as a full
+        // 24-hour round trip rather than a zero-length one.
+        difference += const Duration(days: 1);
+      } else if (difference.isNegative) {
+        difference += const Duration(days: 1);
+      }
 
-      double difference = (boardingdouble - dropingdouble).abs();
-
-      return difference;
+      return difference.inMinutes / 60.0;
     } catch (e) {
       print("Error calculating time difference: $e");
       return 0.0;
     }
+  }
+
+  String formatDuration(double hours) {
+    final totalMinutes = (hours * 60).round();
+    final h = totalMinutes ~/ 60;
+    final m = totalMinutes % 60;
+
+    if (h == 0) return "${m}m";
+    if (m == 0) return "${h}h";
+    return "${h}h ${m}m";
   }
 }

@@ -1,6 +1,6 @@
 //Single Lowwr Seats
 class SingleLower {
- final String seatnumber;
+  final String seatnumber;
 
   SingleLower({required this.seatnumber});
 }
@@ -25,7 +25,6 @@ class DoubleLowerSeat {
 }
 
 List<DoubleLowerSeat> doubleLowerList = [
-
   DoubleLowerSeat(leftSeatNumber: "LD6", rightSeatNumber: "LD7"),
   DoubleLowerSeat(leftSeatNumber: "LD8", rightSeatNumber: "LD9"),
   DoubleLowerSeat(leftSeatNumber: "LD10", rightSeatNumber: "LD11"),
@@ -38,8 +37,8 @@ class SingleUpper {
   final String seatnumber;
 
   SingleUpper({required this.seatnumber});
-
 }
+
 List<SingleUpper> singleUpperList = [
   SingleUpper(seatnumber: "US1"),
   SingleUpper(seatnumber: "US2"),
@@ -59,9 +58,7 @@ class DoubleUpperSeat {
   });
 }
 
-
 List<DoubleUpperSeat> doubleUpperList = [
-
   DoubleUpperSeat(leftSeatNumber: "UD6", rightSeatNumber: "UD7"),
   DoubleUpperSeat(leftSeatNumber: "UD8", rightSeatNumber: "UD9"),
   DoubleUpperSeat(leftSeatNumber: "UD10", rightSeatNumber: "UD11"),
