@@ -7,7 +7,7 @@ class BoardingCubit extends Cubit<List<BoardingData>> {
 
   Dio dio = Dio();
 
-  String boardingapiurl = "http://192.168.1.10:9999/boarding-points-read";
+  String boardingapiurl = "http://192.168.1.2:9999/boarding-points-read";
 
   Future<void> BoardingGetAPI() async {
     try {

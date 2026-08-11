@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:travelsbookingapp/bloc/LocationBloc/locationbloc.dart';
 import 'package:travelsbookingapp/bloc/bookinghistorybloc/bookinghistorybloc.dart';
 import 'package:travelsbookingapp/model/bookinghistorymodel.dart';
 import 'package:travelsbookingapp/model/currentuser.dart';
@@ -22,19 +24,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static const Color red = Color(0xFFE8746B);
 
   final Bookinghistorybloc _bloc = Bookinghistorybloc();
+  final LocationCubit _locationCubit = LocationCubit();
 
   bool pushNotifications = true;
-  bool locationAccess = false;
 
   @override
   void initState() {
     super.initState();
     _bloc.BookingHistoryGetAPI();
+    _locationCubit.loadSavedState();
   }
 
   @override
   void dispose() {
     _bloc.close();
+    _locationCubit.close();
     super.dispose();
   }
 
@@ -50,7 +54,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Map<String, int> _computeStats(List<BookingHistoryData> allBookings) {
     final myBookings = allBookings.where((b) => b.userid == CurrentUser.userid).toList();
-    print("The my booking is $myBookings");
 
     final upcoming = myBookings.where((b) {
       final date = _parseDate(b.date);
@@ -58,7 +61,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }).length;
 
     final cities = <String>{};
-    print(cities);
     for (final b in myBookings) {
       cities.add(b.droppingcity);
     }
@@ -157,8 +159,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgColor,
-      body: BlocProvider.value(
-        value: _bloc,
+      body: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: _bloc),
+          BlocProvider.value(value: _locationCubit),
+        ],
         child: BlocBuilder<Bookinghistorybloc, List<BookingHistoryData>>(
           builder: (context, allBookings) {
             final stats = _computeStats(allBookings);
@@ -214,13 +219,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       icon: Icons.location_on_outlined,
                       iconColor: red,
                       label: "Location access",
-                      trailing: Switch(
-                        value: locationAccess,
-                        activeColor: const Color(0xFF2A1E00),
-                        activeTrackColor: amber,
-                        inactiveThumbColor: muted,
-                        inactiveTrackColor: borderColor,
-                        onChanged: (value) => setState(() => locationAccess = value),
+                      trailing: BlocBuilder<LocationCubit, String?>(
+                        builder: (context, city) {
+                          return Switch(
+                            value: city != null,
+                            activeColor: const Color(0xFF2A1E00),
+                            activeTrackColor: amber,
+                            inactiveThumbColor: muted,
+                            inactiveTrackColor: borderColor,
+                            onChanged: (value) async {
+                              if (value) {
+                                final city = await context
+                                    .read<LocationCubit>()
+                                    .getCurrentLocationAndSave();
+                                if (city == null && mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      behavior: SnackBarBehavior.floating,
+                                      backgroundColor: cardColor,
+                                      content: Text(
+                                        "Couldn't get your location. Check permissions.",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } else {
+                                await context.read<LocationCubit>().clearSavedCity();
+                              }
+                            },
+                          );
+                        },
                       ),
                       showDivider: false,
                     ),

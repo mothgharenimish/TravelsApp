@@ -7,7 +7,7 @@ class Bookinghistorybloc extends Cubit<List<BookingHistoryData>> {
 
   Dio dio = Dio();
 
-  String bookinghistoryurl = "http://192.168.1.10:9999/booking-travels-read";
+  String bookinghistoryurl = "http://192.168.1.2:9999/booking-travels-read";
 
   Future<void> BookingHistoryGetAPI() async {
     try {

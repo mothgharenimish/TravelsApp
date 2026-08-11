@@ -8,7 +8,7 @@ class TravelsCubit extends Cubit<TravelsapiState> {
 
   Dio dio = Dio();
 
-  String travelsapiurl = "http://192.168.1.10:9999/travels-read";
+  String travelsapiurl = "http://192.168.1.2:9999/travels-read";
 
   Future<void> TravelGetAPI() async {
     try {

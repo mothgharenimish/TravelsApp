@@ -71,6 +71,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return "${parsed.day} ${months[parsed.month - 1]} ${parsed.year}";
   }
 
+  Future<void> _onRefresh() async {
+    _bloc.BookingHistoryGetAPI();
+    // Wait for the bloc to emit the refreshed list so the indicator
+    // stays visible until fresh data actually arrives.
+    try {
+      await _bloc.stream.first.timeout(const Duration(seconds: 10));
+    } catch (_) {
+      // Swallow timeout/stream errors here; the BlocBuilder will still
+      // reflect whatever state the bloc ends up in.
+    }
+  }
+
   Future<void> _confirmCancel(BookingHistoryData booking) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -201,20 +213,41 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ? const Center(
                     child: CircularProgressIndicator(color: amber, strokeWidth: 2.4),
                   )
-                      : filtered.isEmpty
-                      ? _emptyState()
-                      : ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(18, 6, 18, 20),
-                    itemCount: filtered.length,
-                    itemBuilder: (context, index) {
-                      return _BookingCard(
-                        booking: filtered[index],
-                        status: _statusOf(filtered[index]),
-                        dateLabel: _formatDate(filtered[index].date),
-                        onCancel: () => _confirmCancel(filtered[index]),
-                      );
-                    },
+                      : RefreshIndicator(
+                    color: amber,
+                    backgroundColor: cardColor,
+                    onRefresh: _onRefresh,
+                    child: filtered.isEmpty
+                        ? LayoutBuilder(
+                      builder: (context, constraints) {
+                        return ListView(
+                          physics: const AlwaysScrollableScrollPhysics(
+                            parent: BouncingScrollPhysics(),
+                          ),
+                          children: [
+                            SizedBox(
+                              height: constraints.maxHeight,
+                              child: _emptyState(),
+                            ),
+                          ],
+                        );
+                      },
+                    )
+                        : ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(18, 6, 18, 20),
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        return _BookingCard(
+                          booking: filtered[index],
+                          status: _statusOf(filtered[index]),
+                          dateLabel: _formatDate(filtered[index].date),
+                          onCancel: () => _confirmCancel(filtered[index]),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ],

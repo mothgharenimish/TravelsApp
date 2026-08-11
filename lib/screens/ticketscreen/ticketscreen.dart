@@ -161,9 +161,28 @@ class _TicketScreenState extends State<TicketScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: TicketScreen.bgColor,
+      appBar: AppBar(
+        backgroundColor: TicketScreen.bgColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Container(
+            height: 36,
+            width: 36,
+            decoration: BoxDecoration(
+              color: TicketScreen.cardColor,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: TicketScreen.borderColor, width: 0.6),
+            ),
+            child: const Icon(Icons.arrow_back_rounded,
+                color: Color(0xFFD5D8DD), size: 18),
+          ),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
           child: Column(
             children: [
               Container(

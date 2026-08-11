@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travelsbookingapp/bloc/LocationBloc/locationbloc.dart';
 import 'package:travelsbookingapp/bloc/travelsbloc/travelsapibloc.dart';
 import 'package:travelsbookingapp/bloc/travelsbloc/travelsapistate.dart';
 import 'package:travelsbookingapp/model/currentuser.dart';
@@ -9,18 +10,31 @@ import 'package:travelsbookingapp/screens/seatSelection/SeatSelection.dart';
 import 'searchcard.dart';
 
 class Home extends StatefulWidget {
-  Home({super.key});
-
-  final TextEditingController fromController = TextEditingController();
-  final TextEditingController toController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
+  const Home({super.key});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  // Controllers live in State — created once, survive rebuilds, disposed properly.
+  final TextEditingController fromController = TextEditingController();
+  final TextEditingController toController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
+
+  final FocusNode fromFocusNode = FocusNode();
+  final FocusNode toFocusNode = FocusNode();
+
+  // Hint labels are state now so they can swap along with the values.
+
+
+  // sortedTravels = full dataset from the API (sorted by date desc).
+  // filteredTravels = what's actually shown, after From/To/Date filtering.
   List<TravelsData> sortedTravels = [];
+  List<TravelsData> filteredTravels = [];
+  List<TravelsData> pastTravels = [];        // NEW
+  List<TravelsData> upcomingTravels = [];
+
   bool isLoading = true;
   int selectedFilter = 0;
   int selectedNav = 0;
@@ -45,20 +59,146 @@ class _HomeState extends State<Home> {
     context.read<TravelsCubit>().TravelGetAPI();
   }
 
+  @override
+  void dispose() {
+    fromController.dispose();
+    toController.dispose();
+    dateController.dispose();
+    fromFocusNode.dispose();
+    toFocusNode.dispose();
+    super.dispose();
+  }
+
   DateTime parseDate(String date) {
     List<String> parts = date.split('-');
     return DateTime(
-      int.parse(parts[0]),
-      int.parse(parts[1]),
       int.parse(parts[2]),
+      int.parse(parts[1]),
+      int.parse(parts[0]),
     );
   }
 
-  void _swapLocations() {
-    final temp = widget.fromController.text;
-    widget.fromController.text = widget.toController.text;
-    widget.toController.text = temp;
-    setState(() {});
+
+  /// Splits [source] into past vs upcoming (today or later) buses using a
+  /// plain loop. Sets pastTravels as a side effect and returns the
+  /// upcoming list, which is what the Home screen should show by default.
+  List<TravelsData> _splitPastAndUpcoming(List<TravelsData> source) {
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day); // strip time
+
+    List<TravelsData> past = [];
+    List<TravelsData> upcoming = [];
+
+    for (int i = 0; i < source.length; i++) {
+      TravelsData travel = source[i];
+
+      // Format is "d-M-yyyy" (day-month-year, not zero-padded), e.g. "8-05-2026".
+      List<String> dateParts = travel.date.split('-');
+      int day = int.parse(dateParts[0]);
+      int month = int.parse(dateParts[1]);
+      int year = int.parse(dateParts[2]);
+      DateTime travelDate = DateTime(year, month, day);
+
+      if (travelDate.isBefore(today)) {
+        past.add(travel);
+      } else {
+        upcoming.add(travel);
+      }
+    }
+
+    pastTravels = past;
+    return upcoming;
+  }
+
+  /// Filters [source] by whatever is currently in the From/To/Date fields.
+  /// Empty fields are ignored (match everything). Called both when fresh
+  /// API data arrives and when the Search button is tapped.
+  List<TravelsData> _applyFilters(List<TravelsData> source) {
+    String fromQuery = fromController.text.trim().toLowerCase();
+    String toQuery = toController.text.trim().toLowerCase();
+    String dateQuery = dateController.text.trim();
+
+    List<TravelsData> result = [];
+
+    for (int i = 0; i < source.length; i++) {
+      TravelsData travel = source[i];
+
+      bool matchesFrom = true;
+      if (fromQuery.isNotEmpty) {
+        matchesFrom = travel.boardingcity.toLowerCase().contains(fromQuery);
+      }
+
+      bool matchesTo = true;
+      if (toQuery.isNotEmpty) {
+        matchesTo = travel.droppingcity.toLowerCase().contains(toQuery);
+      }
+
+      bool matchesDate = true;
+      if (dateQuery.isNotEmpty) {
+        // dateQuery is "yyyy-MM-dd" (from the date picker).
+        // travel.date is "d-M-yyyy" (from the API) — normalize both to compare.
+        List<String> travelParts = travel.date.split('-');
+        String normalizedTravelDate =
+            "${travelParts[2]}-${travelParts[1].padLeft(2, '0')}-${travelParts[0].padLeft(2, '0')}";
+        matchesDate = normalizedTravelDate == dateQuery;
+      }
+
+      if (matchesFrom && matchesTo && matchesDate) {
+        result.add(travel);
+      }
+    }
+
+    return result;
+  }
+
+  void _searchBuses() {
+    FocusScope.of(context).unfocus();
+
+    setState(() {
+      filteredTravels = _applyFilters(upcomingTravels);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: cardColor,
+        content: Text(
+          filteredTravels.isEmpty
+              ? "No buses found for this route/date"
+              : "Found ${filteredTravels.length} bus(es)",
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _swapLocations() async {
+    // Force both fields to fully release the keyboard/IME before we touch
+    // the controllers — matters especially when swapping to/from empty.
+    fromFocusNode.unfocus();
+    toFocusNode.unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    await Future.delayed(const Duration(milliseconds: 50));
+    if (!mounted) return;
+
+    final fromText = fromController.text;
+    final toText = toController.text;
+
+
+    setState(() {
+      fromController.value = TextEditingValue(
+        text: toText,
+        selection: TextSelection.collapsed(offset: toText.length),
+      );
+      toController.value = TextEditingValue(
+        text: fromText,
+        selection: TextSelection.collapsed(offset: fromText.length),
+      );
+
+      // Swap the hint labels along with the values.
+
+    });
   }
 
   Future<void> _pickDate() async {
@@ -83,7 +223,7 @@ class _HomeState extends State<Home> {
       },
     );
     if (picked != null) {
-      widget.dateController.text =
+      dateController.text =
       "${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       setState(() {});
     }
@@ -91,7 +231,6 @@ class _HomeState extends State<Home> {
 
   String get _greeting {
     final hour = DateTime.now().hour;
-    print(hour);
     if (hour < 12) return "GOOD MORNING";
     if (hour < 17) return "GOOD AFTERNOON";
     return "GOOD EVENING";
@@ -107,6 +246,11 @@ class _HomeState extends State<Home> {
           DateTime dateB = parseDate(b.date);
           return dateB.compareTo(dateA);
         });
+
+        upcomingTravels = _splitPastAndUpcoming(sortedTravels);
+        print("The Upcoming Travels $upcomingTravels"); // NEW
+        filteredTravels = _applyFilters(upcomingTravels);         // was sortedTravels
+
         setState(() => isLoading = false);
       },
       child: Scaffold(
@@ -133,13 +277,38 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                         const SizedBox(height: 2),
-                         Text(
+                        Text(
                           CurrentUser.name,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 21,
                             fontWeight: FontWeight.w700,
                           ),
+                        ),
+                        const SizedBox(height: 4),
+                        // Current city, read live from LocationCubit.
+                        BlocBuilder<LocationCubit, String?>(
+                          builder: (context, city) {
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  size: 13,
+                                  color: city != null ? amber : muted,
+                                ),
+                                const SizedBox(width: 3),
+                                Text(
+                                  city ?? "Location off",
+                                  style: TextStyle(
+                                    color: city != null ? amber : muted,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -160,33 +329,23 @@ class _HomeState extends State<Home> {
                 ),
               ),
               const SizedBox(height: 16),
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: Searchcard(
-                  fromcontroller: widget.fromController,
-                  tocontroller: widget.toController,
-                  datecontroller: widget.dateController,
+                  fromcontroller: fromController,
+                  tocontroller: toController,
+                  datecontroller: dateController,
+                  fromfocusnode: fromFocusNode,
+                  toFocusNode: toFocusNode,
                   onSwapTap: _swapLocations,
                   onDateTap: _pickDate,
-                  searchbusTap: () {
-                    FocusScope.of(context).unfocus();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: cardColor,
-                        content: const Text(
-                          "Searching buses for your route...",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    );
-                  },
+                  searchbusTap: _searchBuses,
                 ),
               ),
 
               const SizedBox(height: 8),
 
-              /// RESULTS HEADER
               Padding(
                 padding: const EdgeInsets.fromLTRB(18, 10, 18, 4),
                 child: Row(
@@ -194,7 +353,7 @@ class _HomeState extends State<Home> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      "${sortedTravels.length} buses found",
+                      "${filteredTravels.length} buses found",
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -222,14 +381,14 @@ class _HomeState extends State<Home> {
                     ? const Center(
                   child: CircularProgressIndicator(color: amber),
                 )
-                    : sortedTravels.isEmpty
+                    : filteredTravels.isEmpty
                     ? _EmptyState(muted: muted)
                     : ListView.builder(
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(18, 4, 18, 90),
-                  itemCount: sortedTravels.length,
+                  itemCount: filteredTravels.length,
                   itemBuilder: (context, index) {
-                    final travelsdata = sortedTravels[index];
+                    final travelsdata = filteredTravels[index];
                     return Travelscard(
                       travelsdata: travelsdata,
                       onTap: () {
@@ -253,8 +412,6 @@ class _HomeState extends State<Home> {
             ],
           ),
         ),
-
-
       ),
     );
   }

@@ -51,25 +51,25 @@ class _SeatSelectionState extends State<SeatSelection> {
   void initState() {
     super.initState();
 
-    lowerSingles = List.generate(4, (i) => Seat(id: "L${i + 1}"));
+    lowerSingles = List.generate(10, (i) => Seat(id: "L${i + 1}"));
+    print("The lower singles is $lowerSingles");
     lowerDoublePairs = List.generate(
-      4,
+      10,
           (row) => [
         Seat(id: "LL${row * 2 + 1}"),
         Seat(id: "LL${row * 2 + 2}"),
       ],
     );
 
-    upperSingles = List.generate(4, (i) => Seat(id: "U${i + 1}"));
+    upperSingles = List.generate(10, (i) => Seat(id: "U${i + 1}"));
     upperDoublePairs = List.generate(
-      4,
+      10,
           (row) => [
         Seat(id: "UU${row * 2 + 1}"),
         Seat(id: "UU${row * 2 + 2}"),
       ],
     );
 
-    // sample already-booked seats, purely for a realistic look
     lowerSingles[1].status = SeatStatus.booked;
     lowerDoublePairs[1][1].status = SeatStatus.booked;
     upperSingles[2].status = SeatStatus.booked;
@@ -163,7 +163,7 @@ class _SeatSelectionState extends State<SeatSelection> {
             width: 40,
             child: Row(children: [_buildSeat(singles[i])]),
           ),
-          if (i != singles.length - 1) const SizedBox(height: 16),
+          if (i != singles.length - 1) const SizedBox(height: 12),
         ],
       ],
     );

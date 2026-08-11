@@ -4,6 +4,8 @@ class Searchcard extends StatelessWidget {
   final TextEditingController fromcontroller;
   final TextEditingController tocontroller;
   final TextEditingController datecontroller;
+  final FocusNode? fromfocusnode;
+  final FocusNode? toFocusNode;
   final VoidCallback searchbusTap;
   final VoidCallback? onSwapTap;
   final VoidCallback? onDateTap;
@@ -21,6 +23,8 @@ class Searchcard extends StatelessWidget {
     required this.tocontroller,
     required this.datecontroller,
     required this.searchbusTap,
+    this.fromfocusnode,
+    this.toFocusNode,
     this.onSwapTap,
     this.onDateTap,
   });
@@ -78,12 +82,13 @@ class Searchcard extends StatelessWidget {
                   children: [
                     TextFormField(
                       controller: fromcontroller,
+                      focusNode: fromfocusnode,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
-                      decoration: const InputDecoration(
+                      decoration:  InputDecoration(
                         isDense: true,
                         border: InputBorder.none,
                         hintText: "From",
@@ -94,12 +99,13 @@ class Searchcard extends StatelessWidget {
                     const SizedBox(height: 22),
                     TextFormField(
                       controller: tocontroller,
+                      focusNode: toFocusNode,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
-                      decoration: const InputDecoration(
+                      decoration:  InputDecoration(
                         isDense: true,
                         border: InputBorder.none,
                         hintText: "To",

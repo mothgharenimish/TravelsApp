@@ -7,7 +7,7 @@ class DroppingCubit extends Cubit<List<DroppingData>> {
 
   Dio dio = Dio();
 
-  String droppingapiurl = "http://192.168.1.10:9999/dropping-points-read";
+  String droppingapiurl = "http://192.168.1.2:9999/dropping-points-read";
 
   Future<void> DroppingGetAPI() async {
     try {

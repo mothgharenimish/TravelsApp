@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travelsbookingapp/bloc/LocationBloc/locationbloc.dart';
 import 'package:travelsbookingapp/bloc/boardingpointbloc/boardingpointbloc.dart';
 import 'package:travelsbookingapp/bloc/bookinghistorybloc/bookinghistorybloc.dart';
 import 'package:travelsbookingapp/bloc/dropingpointbloc/dropingpointbloc.dart';
@@ -7,6 +8,7 @@ import 'package:travelsbookingapp/bloc/loginbloc/loginbloc.dart';
 import 'package:travelsbookingapp/bloc/registrationbloc/registrationbloc.dart';
 import 'package:travelsbookingapp/bloc/splashbloc/splashbloc.dart';
 import 'package:travelsbookingapp/bloc/travelsbloc/travelsapibloc.dart';
+import 'package:travelsbookingapp/screens/setting/settingscreen.dart';
 import 'package:travelsbookingapp/screens/splash/splash.dart';
 
 void main() {
@@ -47,6 +49,11 @@ class MyApp extends StatelessWidget {
         BlocProvider<Bookinghistorybloc>(
           create: (context) => Bookinghistorybloc(),
         ),
+
+        BlocProvider(
+          create: (_) => LocationCubit()..loadSavedState(),
+          child: SettingsScreen(),
+        )
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

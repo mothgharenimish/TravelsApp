@@ -7,7 +7,7 @@ class Registrationbloc extends Cubit<RegistrationState> {
 
   Dio dio = Dio();
 
-  String registrationUrl = "http://192.168.1.10:9999/user-registration";
+  String registrationUrl = "http://192.168.1.2:9999/user-registration";
 
   Future<void> Registrationapi() async {
     emit(state.copyWith(isValidRegistration: true));

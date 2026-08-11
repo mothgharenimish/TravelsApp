@@ -6,7 +6,7 @@ class BookingCubit extends Cubit<bool?> {
 
   Dio dio = Dio();
 
-  String bookingapiurl = "http://192.168.1.10:9999/booking-travels";
+  String bookingapiurl = "http://192.168.1.2:9999/booking-travels";
 
   String errormessage = "";
   Map<String, dynamic>? bookingdetails;
