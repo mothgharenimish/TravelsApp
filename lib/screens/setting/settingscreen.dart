@@ -24,7 +24,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static const Color red = Color(0xFFE8746B);
 
   final Bookinghistorybloc _bloc = Bookinghistorybloc();
-  final LocationCubit _locationCubit = LocationCubit();
+
+  // NOTE: No local LocationCubit() here. LocationCubit is provided once,
+  // higher up the app (same instance Home reads via context.read), and
+  // must be shared, not re-instantiated — otherwise toggling location
+  // here updates a cubit nobody else is listening to, and Home never
+  // sees the change. _bloc (Bookinghistorybloc) IS fine to own locally
+  // since Home doesn't depend on it.
 
   bool pushNotifications = true;
 
@@ -32,13 +38,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _bloc.BookingHistoryGetAPI();
-    _locationCubit.loadSavedState();
+    // No loadSavedState() call needed here — the shared LocationCubit
+    // (read from context in build/callbacks below) already loaded its
+    // saved state wherever it was created/provided.
   }
 
   @override
   void dispose() {
     _bloc.close();
-    _locationCubit.close();
+    // Do NOT close the shared LocationCubit here — this screen doesn't
+    // own it, and closing it would break every other screen (e.g. Home)
+    // still listening to it.
     super.dispose();
   }
 
@@ -159,11 +169,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgColor,
-      body: MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: _bloc),
-          BlocProvider.value(value: _locationCubit),
-        ],
+      // Only provide _bloc here (screen-local data). LocationCubit is
+      // NOT provided here — it's inherited from further up the tree,
+      // shared with Home and everywhere else that needs live location.
+      body: BlocProvider.value(
+        value: _bloc,
         child: BlocBuilder<Bookinghistorybloc, List<BookingHistoryData>>(
           builder: (context, allBookings) {
             final stats = _computeStats(allBookings);
@@ -219,6 +229,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       icon: Icons.location_on_outlined,
                       iconColor: red,
                       label: "Location access",
+                      // Reads the SAME LocationCubit instance Home reads,
+                      // via the ancestor provider — not a screen-local one.
                       trailing: BlocBuilder<LocationCubit, String?>(
                         builder: (context, city) {
                           return Switch(

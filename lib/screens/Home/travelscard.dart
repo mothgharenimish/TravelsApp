@@ -122,7 +122,7 @@ class _TravelscardState extends State<Travelscard> {
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
                                   widget.travelsdata.timeDifference != null
-                                      ? "${widget.travelsdata.timeDifference}h"
+                                      ? _formatDuration(widget.travelsdata.timeDifference!)   // ← FIXED
                                       : "",
                                   style: const TextStyle(fontSize: 11, color: muted),
                                 ),
@@ -286,13 +286,23 @@ class _TravelscardState extends State<Travelscard> {
     ];
     try {
       final parts = date.split('-');
-      final year = int.parse(parts[0]);
+      final day = int.parse(parts[0]);
       final month = int.parse(parts[1]);
-      final day = int.parse(parts[2]);
+      final year = int.parse(parts[2]);
       return "$day ${months[month - 1]} $year";
     } catch (_) {
       return date;
     }
+  }
+
+  String _formatDuration(double hours) {
+    final totalMinutes = (hours * 60).round();
+    final h = totalMinutes ~/ 60;
+    final m = totalMinutes % 60;
+
+    if (h == 0) return "${m}m";
+    if (m == 0) return "${h}h";
+    return "${h}h ${m}m";
   }
 
   Widget _tag(String label, Color bg, Color fg) {

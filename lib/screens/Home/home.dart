@@ -17,7 +17,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  // Controllers live in State — created once, survive rebuilds, disposed properly.
   final TextEditingController fromController = TextEditingController();
   final TextEditingController toController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
@@ -25,14 +24,11 @@ class _HomeState extends State<Home> {
   final FocusNode fromFocusNode = FocusNode();
   final FocusNode toFocusNode = FocusNode();
 
-  // Hint labels are state now so they can swap along with the values.
-
-
   // sortedTravels = full dataset from the API (sorted by date desc).
   // filteredTravels = what's actually shown, after From/To/Date filtering.
   List<TravelsData> sortedTravels = [];
   List<TravelsData> filteredTravels = [];
-  List<TravelsData> pastTravels = [];        // NEW
+  List<TravelsData> pastTravels = [];
   List<TravelsData> upcomingTravels = [];
 
   bool isLoading = true;
@@ -44,6 +40,9 @@ class _HomeState extends State<Home> {
   static const Color borderColor = Color(0xFF262B35);
   static const Color amber = Color(0xFFE8B84B);
   static const Color muted = Color(0xFF9AA0AA);
+
+  // final TravelsCubit _travelsCubit = TravelsCubit();
+  // final LocationCubit _locationCubit = LocationCubit();
 
   final List<String> filters = ["All routes", "AC sleeper", "Seater"];
   final List<IconData> navIcons = [
@@ -78,7 +77,24 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Future<void> _onRefresh() async {
+    final travelsCubit = context.read<TravelsCubit>();
+    final locationCubit = context.read<LocationCubit>();
 
+    travelsCubit.TravelGetAPI();
+    locationCubit.getCurrentLocationAndSave();
+
+    try {
+      await Future.wait([
+        travelsCubit.stream.first.timeout(const Duration(seconds: 10)),
+        locationCubit.stream.first.timeout(const Duration(seconds: 10)),
+      ]);
+    } catch (_) {
+      // Timed out or errored — RefreshIndicator still resolves below,
+      // so the spinner just stops; any partial state already emitted
+      // (e.g. travels succeeded but location timed out) is still shown.
+    }
+  }
   /// Splits [source] into past vs upcoming (today or later) buses using a
   /// plain loop. Sets pastTravels as a side effect and returns the
   /// upcoming list, which is what the Home screen should show by default.
@@ -151,6 +167,32 @@ class _HomeState extends State<Home> {
     return result;
   }
 
+  /// Moves entries whose boardingcity matches [currentCity] to the front,
+  /// preserving the relative order within both groups. Same partition-then
+  /// -concat approach as the original ArrangingElements example: collect
+  /// matches in a pass, strip them out of a copy of the source, then
+  /// concatenate matches + rest.
+  List<TravelsData> _prioritizeCurrentCity(
+      List<TravelsData> source, String? currentCity) {
+    if (currentCity == null || currentCity.trim().isEmpty) {
+      return source;
+    }
+
+    final String target = currentCity.trim().toLowerCase();
+    List<TravelsData> matched = [];
+
+    for (int i = 0; i < source.length; i++) {
+      if (source[i].boardingcity.trim().toLowerCase() == target) {
+        matched.add(source[i]);
+      }
+    }
+
+    List<TravelsData> rest = List.from(source);
+    rest.removeWhere((t) => t.boardingcity.trim().toLowerCase() == target);
+
+    return matched + rest;
+  }
+
   void _searchBuses() {
     FocusScope.of(context).unfocus();
 
@@ -185,7 +227,6 @@ class _HomeState extends State<Home> {
     final fromText = fromController.text;
     final toText = toController.text;
 
-
     setState(() {
       fromController.value = TextEditingValue(
         text: toText,
@@ -195,9 +236,6 @@ class _HomeState extends State<Home> {
         text: fromText,
         selection: TextSelection.collapsed(offset: fromText.length),
       );
-
-      // Swap the hint labels along with the values.
-
     });
   }
 
@@ -248,8 +286,8 @@ class _HomeState extends State<Home> {
         });
 
         upcomingTravels = _splitPastAndUpcoming(sortedTravels);
-        print("The Upcoming Travels $upcomingTravels"); // NEW
-        filteredTravels = _applyFilters(upcomingTravels);         // was sortedTravels
+        print("The Upcoming Travels $upcomingTravels");
+        filteredTravels = _applyFilters(upcomingTravels);
 
         setState(() => isLoading = false);
       },
@@ -383,26 +421,35 @@ class _HomeState extends State<Home> {
                 )
                     : filteredTravels.isEmpty
                     ? _EmptyState(muted: muted)
-                    : ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(18, 4, 18, 90),
-                  itemCount: filteredTravels.length,
-                  itemBuilder: (context, index) {
-                    final travelsdata = filteredTravels[index];
-                    return Travelscard(
-                      travelsdata: travelsdata,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => SeatSelection(
-                              travelsid: travelsdata.travelsid,
-                              companyName: travelsdata.travelscompanyname,
-                              boardingCity: travelsdata.boardingcity,
-                              droppingCity: travelsdata.droppingcity,
-                              pricePerSeat: travelsdata.price,
-                            ),
-                          ),
+                    : BlocBuilder<LocationCubit, String?>(
+                  // Re-sorts (current-city-first) whenever location changes,
+                  // without needing a full setState from the parent.
+                  builder: (context, city) {
+                    final List<TravelsData> displayList =
+                    _prioritizeCurrentCity(filteredTravels, city);
+
+                    return ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(18, 4, 18, 90),
+                      itemCount: displayList.length,
+                      itemBuilder: (context, index) {
+                        final travelsdata = displayList[index];
+                        return Travelscard(
+                          travelsdata: travelsdata,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => SeatSelection(
+                                  travelsid: travelsdata.travelsid,
+                                  companyName: travelsdata.travelscompanyname,
+                                  boardingCity: travelsdata.boardingcity,
+                                  droppingCity: travelsdata.droppingcity,
+                                  pricePerSeat: travelsdata.price,
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
                     );
